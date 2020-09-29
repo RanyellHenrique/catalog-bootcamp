@@ -1,6 +1,7 @@
 package com.bootcamp.catalog.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bootcamp.catalog.dto.CategoryDTO;
 import com.bootcamp.catalog.entities.Category;
 import com.bootcamp.catalog.repositories.CategoryRepository;
+import com.bootcamp.catalog.services.exceptions.EntityNotFoundException;
+
 
 @Service
 public class CategoryService {
@@ -21,6 +24,13 @@ public class CategoryService {
 	public List<CategoryDTO> findAll(){
 		List<Category> list = repository.findAll();
 		return list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
+	}
+	
+	@Transactional(readOnly = true)
+	public CategoryDTO findById(Long id){
+		Optional<Category> obj = repository.findById(id);
+		Category entity = obj.orElseThrow(() -> new EntityNotFoundException("Entity not found"));
+		return new CategoryDTO(entity);
 	}
 
 }
