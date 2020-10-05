@@ -22,7 +22,7 @@ import com.bootcamp.catalog.dto.CategoryDTO;
 import com.bootcamp.catalog.services.CategoryService;
 
 @RestController
-@RequestMapping(value = "/categories")
+@RequestMapping(value = "categories")
 public class CategoryResource {
 	
 	@Autowired
