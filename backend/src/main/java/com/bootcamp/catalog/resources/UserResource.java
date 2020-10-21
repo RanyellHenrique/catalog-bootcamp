@@ -22,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.bootcamp.catalog.dto.UserDTO;
 import com.bootcamp.catalog.dto.UserInsertDTO;
+import com.bootcamp.catalog.dto.UserUpdateDTO;
 import com.bootcamp.catalog.services.UserService;
 
 @RestController
@@ -57,9 +58,9 @@ public class UserResource {
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto){
-		UserDTO obj = service.update(id, dto);
-		return ResponseEntity.ok().body(obj);
+	public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto){
+		UserDTO newDto = service.update(id, dto);
+		return ResponseEntity.ok().body(newDto);
 	}
 	
 	@DeleteMapping(value = "/{id}")
