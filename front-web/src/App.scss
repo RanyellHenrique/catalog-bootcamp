@@ -34,3 +34,22 @@ a {
 .border-radius-20 {
   border-radius: 20px;
 }
+
+.margin-bottom-30 {
+  margin-bottom: 30px;
+}
+
+.input-base {
+  border: 1px solid #E1E1E1;
+  box-sizing: border-box;
+  border-radius: 10px;
+  font-size: 18px;
+  line-height: 25px;
+  letter-spacing: -0.015em;
+  color: #263238;
+  height: 50px;
+
+  &::placeholder {
+    color: #9E9E9E;
+  }
+}
