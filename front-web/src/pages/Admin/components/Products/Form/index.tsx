@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './styles.scss';
 import BaseForm from '../../BaseForm';
-import { makeRequest } from 'core/utils/request';
+import { makePrivateRequest } from 'core/utils/request';
 
 type FormState = {
     name: string;
@@ -30,7 +30,7 @@ const Form = () => {
             imgUrl: 'https://cdn.awsli.com.br/300x300/1147/1147622/produto/71051088/3f1c1728dd.jpg',
             categories: [{ id: formData.category }]
         }
-        makeRequest({ url: '/products', method: 'POST', data: payload })
+        makePrivateRequest({ url: '/products', method: 'POST', data: payload })
             .then(() => {
                 setFormData({name:'', category:'1', price:'', description: ''});
             });
