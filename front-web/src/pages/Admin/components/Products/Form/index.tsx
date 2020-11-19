@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './styles.scss';
 import BaseForm from '../../BaseForm';
-import { makePrivateRequest } from 'core/utils/request';
+import { makePrivateRequest, makeRequest } from 'core/utils/request';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 type FormState = {
     name: string;
@@ -13,16 +13,36 @@ type FormState = {
     imgUrl: string;
 }
 
-type formEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+type ParamsType = {
+    productId: string;
+}
 
 const Form = () => {
 
-    const { register, handleSubmit, errors } = useForm<FormState>();
+    const { register, handleSubmit, errors, setValue } = useForm<FormState>();
     const history = useHistory();
+    const { productId } = useParams<ParamsType>();
+    const isEditing = productId !== 'create';
+    const formTitle = isEditing ? 'Editar um produto' : 'Cadastrar um produto';
+
+    useEffect(() => {
+        if (isEditing) {
+            makeRequest({ url: `/products/${productId}` })
+                .then(response => {
+                    setValue('name', response.data.name);
+                    setValue('price', response.data.price);
+                    setValue('description', response.data.description);
+                    setValue('imgUrl', response.data.imgUrl);
+                });
+        }
+    }, [productId, isEditing, setValue])
 
 
     const onSubmit = (data: FormState) => {
-        makePrivateRequest({ url: '/products', method: 'POST', data })
+        makePrivateRequest({ 
+            url: isEditing ? `/products/${productId}` : '/products', 
+            method: isEditing ? 'PUT' : 'POST', 
+            data })
             .then(() => {
                 toast.info('Produto Salvo com sucesso!');
                 history.push('/admin/products');
@@ -34,7 +54,7 @@ const Form = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <BaseForm title="CADASTRAR UM PRODUTO">
+            <BaseForm title={formTitle}>
                 <div className="row">
                     <div className="col-6">
                         <div className="margin-bottom-30">
