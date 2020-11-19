@@ -4,6 +4,7 @@ import { makeRequest } from 'core/utils/request';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Card from '../Card';
+import CardLoader from '../Loaders/ProductCardLoades';
 
 
 const List = () => {
@@ -24,7 +25,7 @@ const List = () => {
             .then(response => setProductsResponse(response.data))
             .finally(() => setIsLoading(false));
     }, [activePage])
-    
+
 
     const handleCreate = () => {
         history.push('/admin/products/create');
@@ -36,15 +37,17 @@ const List = () => {
                 ADICIONAR
             </button>
             <div className="admin-list-container">
-                {productsResponse?.content.map(product => (
-                    <Card product={product} key={product.id}/>
-                ))}
-                 {productsResponse && 
-                <Pagination
-                    totalPages={productsResponse.totalPages}
-                    activePage={activePage}
-                    onChange={page => setActivePage(page)}
-                />}
+                {isLoading ? <CardLoader /> : (
+                    productsResponse?.content.map(product => (
+                        <Card product={product} key={product.id} />
+                    ))
+                )}
+                {productsResponse &&
+                    <Pagination
+                        totalPages={productsResponse.totalPages}
+                        activePage={activePage}
+                        onChange={page => setActivePage(page)}
+                    />}
             </div>
         </div>
     );
