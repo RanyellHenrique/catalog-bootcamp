@@ -1,16 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles.scss';
 import BaseForm from '../../BaseForm';
 import { makePrivateRequest, makeRequest } from 'core/utils/request';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { useHistory, useParams } from 'react-router-dom';
+import Select from 'react-select';
+import { Category } from 'core/types/Products';
 
 type FormState = {
     name: string;
     price: string;
     description: string;
     imgUrl: string;
+    categories: Category[];
 }
 
 type ParamsType = {
@@ -19,9 +22,11 @@ type ParamsType = {
 
 const Form = () => {
 
-    const { register, handleSubmit, errors, setValue } = useForm<FormState>();
+    const { register, handleSubmit, errors, setValue, control } = useForm<FormState>();
     const history = useHistory();
     const { productId } = useParams<ParamsType>();
+    const [categories, setCategories] = useState<Category[]>();
+    const [isLoadingCategories, SetIsLoadingCategories] = useState(false);
     const isEditing = productId !== 'create';
     const formTitle = isEditing ? 'Editar um produto' : 'Cadastrar um produto';
 
@@ -33,16 +38,25 @@ const Form = () => {
                     setValue('price', response.data.price);
                     setValue('description', response.data.description);
                     setValue('imgUrl', response.data.imgUrl);
+                    setValue('categories', response.data.categories);
                 });
         }
     }, [productId, isEditing, setValue])
 
+    useEffect(() => {
+        SetIsLoadingCategories(true);
+        makeRequest({ url: '/categories' })
+            .then(response => setCategories(response.data.content))
+            .finally(() => SetIsLoadingCategories(false))
+    }, [])
+
 
     const onSubmit = (data: FormState) => {
-        makePrivateRequest({ 
-            url: isEditing ? `/products/${productId}` : '/products', 
-            method: isEditing ? 'PUT' : 'POST', 
-            data })
+        makePrivateRequest({
+            url: isEditing ? `/products/${productId}` : '/products',
+            method: isEditing ? 'PUT' : 'POST',
+            data
+        })
             .then(() => {
                 toast.info('Produto Salvo com sucesso!');
                 history.push('/admin/products');
@@ -76,6 +90,26 @@ const Form = () => {
                             )}
                         </div>
                         <div className="margin-bottom-30">
+                            <Controller
+                                as={Select}
+                                name="categories"
+                                rules={{required: true}}
+                                control={control}
+                                options={categories}
+                                isLoading={isLoadingCategories}
+                                getOptionLabel={(option: Category) => option.name}
+                                getOptionValue={(option: Category) => String(option.id)}
+                                classNamePrefix="categories-select"
+                                isMulti
+                                placeholder="Categorias"
+                            />
+                             {errors.price && (
+                                <div className="invalid-feedback d-block">
+                                    Campo obrigatório
+                                </div>
+                            )}
+                        </div>
+                        <div className="margin-bottom-30">
                             <input
                                 ref={register({ required: "Campo obrigatório" })}
                                 name="price"
@@ -105,14 +139,14 @@ const Form = () => {
                             )}
                         </div>
                     </div>
-                    <div className="col-6">
+                    <div className="col-6 mb-5">
                         <textarea
                             name="description"
                             ref={register({ required: "Campo obrigatório" })}
                             cols={30}
                             rows={10}
                             placeholder="Descrição"
-                            className="form-control mb-5 input-base"
+                            className="form-control  input-base"
                         />
                         {errors.description && (
                             <div className="invalid-feedback d-block">
