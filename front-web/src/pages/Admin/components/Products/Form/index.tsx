@@ -82,6 +82,7 @@ const Form = () => {
                                 type="text"
                                 placeholder="Nome do produto"
                                 className="form-control  input-base"
+                                data-testid="name"
                             />
                             {errors.name && (
                                 <div className="invalid-feedback d-block">
@@ -90,6 +91,7 @@ const Form = () => {
                             )}
                         </div>
                         <div className="margin-bottom-30">
+                            <label htmlFor="categories" className="d-none">Categorias</label>
                             <Controller
                                 as={Select}
                                 name="categories"
@@ -102,6 +104,9 @@ const Form = () => {
                                 classNamePrefix="categories-select"
                                 isMulti
                                 placeholder="Categorias"
+                                inputId="categories"
+                                data-testid="categories"
+                                defaultValue=""
                             />
                              {errors.price && (
                                 <div className="invalid-feedback d-block">
@@ -116,6 +121,7 @@ const Form = () => {
                                 type="number"
                                 className="form-control  input-base"
                                 placeholder="Preço"
+                                data-testid="price"
 
                             />
                             {errors.price && (
@@ -131,6 +137,7 @@ const Form = () => {
                                 type="text"
                                 className="form-control  input-base"
                                 placeholder="imagem do produto"
+                                data-testid="imgUrl"
                             />
                             {errors.imgUrl && (
                                 <div className="invalid-feedback d-block">
@@ -147,6 +154,7 @@ const Form = () => {
                             rows={10}
                             placeholder="Descrição"
                             className="form-control  input-base"
+                            data-testid="description"
                         />
                         {errors.description && (
                             <div className="invalid-feedback d-block">
