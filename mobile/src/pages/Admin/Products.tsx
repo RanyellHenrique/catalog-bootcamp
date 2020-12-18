@@ -1,0 +1,15 @@
+import React from 'react';
+import { Text, View } from 'react-native';
+import { theme } from '../../styles';
+
+
+const Products: React.FC = () => {
+    return (
+        <View style={theme.container}>
+            <Text>Container Products</Text>
+        </View>
+    );
+}
+
+
+export default Products;
