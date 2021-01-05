@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, ScrollView, TouchableOpacity, Image, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { colors, text, theme } from '../../../styles';
 import arrow from '../../../assets/leftArrow.png';
-import { createProduct, getCategories } from '../../../services';
+import { createProduct, getCategories, uploadImage } from '../../../services';
 import Toast from 'react-native-tiny-toast';
 import { TextInputMask } from 'react-native-masked-text';
+import * as ImagePicker from 'expo-image-picker';
 
 interface FormProductsProps {
     setScreen: Function;
@@ -23,6 +24,7 @@ const FormProduct: React.FC<FormProductsProps> = (props) => {
     });
     const [categories, setCategories] = useState([]);
     const [showCategories, setShowCategories] = useState(false);
+    const [image, setImage] = useState("");
 
     const loadCategories = async () => {
         setLoading(true);
@@ -46,11 +48,11 @@ const FormProduct: React.FC<FormProductsProps> = (props) => {
                 }
             ]
         };
-        try{
+        try {
             await createProduct(data);
             Toast.showSuccess("Produto criado com sucesso!")
-        } catch( res ) {
-           Toast.show("Erro ao salvar");
+        } catch (res) {
+            Toast.show("Erro ao salvar");
         }
         setLoading(false);
     }
@@ -66,9 +68,40 @@ const FormProduct: React.FC<FormProductsProps> = (props) => {
         return res;
     }
 
+    const selectImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1
+        });
+        setImage(result.uri);
+    }
+
+    const handleUpload = () => {
+        uploadImage(image).then((res) => {
+            const { uri } = res?.data;
+            setProduct({ ...product, imgUrl: uri })
+        });
+    }
+
     useEffect(() => {
         loadCategories();
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        async () => {
+            const { status } = await ImagePicker.requestCameraRollPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Precisamos de acesso a biblioteca de imagens')
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        image ? handleUpload() : null;
+    }, [image])
+
 
     return (
         <View style={theme.formContainer}>
@@ -131,12 +164,30 @@ const FormProduct: React.FC<FormProductsProps> = (props) => {
                                 value={product.price}
                                 onChangeText={(e) => setProduct({ ...product, price: e })}
                             />
-                            <TouchableOpacity style={theme.uploadBtn}>
+                            <TouchableOpacity
+                                style={theme.uploadBtn}
+                                onPress={selectImage}
+                            >
                                 <Text style={text.uploadText}>Carregar imagem</Text>
                             </TouchableOpacity>
                             <Text style={text.fileSize}>
                                 As imagens devem ser JPG ou PNG e não devem ultrapassar 5 mb.
                         </Text>
+                            {
+                                image !== "" && (
+                                    <TouchableOpacity 
+                                    onPress={selectImage}
+                                    style={{
+                                        width: "100%",
+                                        height: 150,
+                                        borderRadius: 10,
+                                        marginVertical: 10
+                                    }}
+                                    >
+                                        <Image source={{uri: image}} style={{width: "100%", height: "100%", borderRadius: 10}}/>
+                                    </TouchableOpacity>
+                                )
+                            }
                             <TextInput
                                 multiline
                                 placeholder="Descrição"

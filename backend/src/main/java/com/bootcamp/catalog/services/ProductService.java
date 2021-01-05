@@ -1,5 +1,6 @@
 package com.bootcamp.catalog.services;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bootcamp.catalog.dto.CategoryDTO;
 import com.bootcamp.catalog.dto.ProductDTO;
+import com.bootcamp.catalog.dto.UriDTO;
 import com.bootcamp.catalog.entities.Category;
 import com.bootcamp.catalog.entities.Product;
 import com.bootcamp.catalog.repositories.CategoryRepository;
@@ -32,6 +35,9 @@ public class ProductService {
 	
 	@Autowired
 	private CategoryRepository categoryRepository;
+	
+	@Autowired
+	private S3Service s3Service;
 	
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPaged(Long categoryId, String name, PageRequest pageRequest){
@@ -93,6 +99,11 @@ public class ProductService {
 			Category category = categoryRepository.getOne(catDto.getId());
 			entity.getCategories().add(category);
 		}
+	}
+
+	public UriDTO uploadFile(MultipartFile file) {
+		URL url = s3Service.uploadFile(file);
+		return new UriDTO(url.toString());
 	}
 	
 }
