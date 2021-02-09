@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 export const api = axios.create({
     baseURL: 'https://ranyell-dscatalog.herokuapp.com'
@@ -46,17 +47,20 @@ export const userToken = async () => {
 export const uploadImage = async (image: string) => {
     if(!image) return;
     const authToken = await userToken();
+    console.warn(image)
     let data = new FormData();
     data.append("file", {
         uri: image,
-        name: image,
+        name: image
     });
 
     const res = await api.post('/products/image', data, {
         headers:{
             Authorization: `Bearer ${authToken}`,
-            "Content-Type": "multipart/form-data"
-        }
+            "Content-Type": "multipart/form-data",
+            Accept: 'application/json',
+        },
     });
 
+    return res;
 }

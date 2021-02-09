@@ -48,7 +48,7 @@ const Form = () => {
         makeRequest({ url: '/categories' })
             .then(response => setCategories(response.data.content))
             .finally(() => SetIsLoadingCategories(false))
-    }, [])
+    }, []);
 
 
     const onSubmit = (data: FormState) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ImageSourcePropType, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { text, theme } from '../styles';
 import { TextInputMask } from 'react-native-masked-text';

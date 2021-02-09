@@ -75,14 +75,17 @@ const FormProduct: React.FC<FormProductsProps> = (props) => {
             aspect: [4, 3],
             quality: 1
         });
-        setImage(result.uri);
+        if (!result.cancelled) {
+            setImage(result.uri);
+        }
     }
 
     const handleUpload = () => {
         uploadImage(image).then((res) => {
             const { uri } = res?.data;
-            setProduct({ ...product, imgUrl: uri })
+            setProduct({ ...product, imgUrl: uri });
         });
+        
     }
 
     useEffect(() => {
@@ -91,7 +94,7 @@ const FormProduct: React.FC<FormProductsProps> = (props) => {
 
     useEffect(() => {
         async () => {
-            const { status } = await ImagePicker.requestCameraRollPermissionsAsync();
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Precisamos de acesso a biblioteca de imagens')
             }
