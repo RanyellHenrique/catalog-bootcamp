@@ -1,5 +1,6 @@
 import Pagination from 'core/components/Pagination';
-import { ProductsResponse } from 'core/types/Products';
+import ProductFilters from 'core/components/ProductFilters';
+import { Category, ProductsResponse } from 'core/types/Products';
 import { makePrivateRequest, makeRequest } from 'core/utils/request';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -12,6 +13,8 @@ const List = () => {
     const [productsResponse, setProductsResponse] = useState<ProductsResponse>();
     const [isLoading, setIsLoading] = useState(false);
     const [activePage, setActivePage] = useState(0);
+    const [name, setName] = useState('');
+    const [category, setCategory] = useState<Category>();
     const history = useHistory();
 
     const getProducts = useCallback(() => {
@@ -19,13 +22,15 @@ const List = () => {
             page: activePage,
             linesPerPage: 4,
             direction: 'DESC',
-            orderBy: 'id'
+            orderBy: 'id',
+            name: name,
+            categoryId: category?.id
         }
         setIsLoading(true);
         makeRequest({ url: '/products', params })
             .then(response => setProductsResponse(response.data))
             .finally(() => setIsLoading(false));
-    }, [activePage])
+    }, [activePage, name, category])
 
     useEffect(() => {
         getProducts();
@@ -50,11 +55,36 @@ const List = () => {
         }
     }
 
+    const handleChangeName = (name: string) => {
+        setName(name);
+        setActivePage(0);
+    }
+
+    const handleChangeCategory = (category: Category) => {
+        setCategory(category);
+        setActivePage(0);
+    }
+
+    const clearFilters = () => {
+        setCategory(undefined);
+        setName('');
+        setActivePage(0);
+    }
+
     return (
         <div className="admin-products-list">
-            <button className="btn btn-primary btn-lg" onClick={handleCreate}>
-                ADICIONAR
+            <div className="d-flex justify-content-between">
+                <button className="btn btn-primary btn-lg" onClick={handleCreate}>
+                    ADICIONAR
             </button>
+                <ProductFilters
+                    name={name}
+                    handleChangeCategory={handleChangeCategory}
+                    handleChangeName={handleChangeName}
+                    clearFilters={clearFilters}
+                    category={category}
+                />
+            </div>
             <div className="admin-list-container">
                 {isLoading ? <CardLoader /> : (
                     productsResponse?.content.map(product => (
