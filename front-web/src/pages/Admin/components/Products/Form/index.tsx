@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { useHistory, useParams } from 'react-router-dom';
 import Select from 'react-select';
 import { Category } from 'core/types/Products';
+import ImageUpload from '../ImageUpload';
 
 type FormState = {
     name: string;
@@ -27,6 +28,10 @@ const Form = () => {
     const { productId } = useParams<ParamsType>();
     const [categories, setCategories] = useState<Category[]>();
     const [isLoadingCategories, SetIsLoadingCategories] = useState(false);
+    const [uploadedImgUrl, setUploadedImgUrl] = useState('');
+    const [productImgUrl, setProductImgUrl] = useState('');
+
+
     const isEditing = productId !== 'create';
     const formTitle = isEditing ? 'Editar um produto' : 'Cadastrar um produto';
 
@@ -37,8 +42,8 @@ const Form = () => {
                     setValue('name', response.data.name);
                     setValue('price', response.data.price);
                     setValue('description', response.data.description);
-                    setValue('imgUrl', response.data.imgUrl);
                     setValue('categories', response.data.categories);
+                    setProductImgUrl(response.data.imgUrl);
                 });
         }
     }, [productId, isEditing, setValue])
@@ -52,10 +57,14 @@ const Form = () => {
 
 
     const onSubmit = (data: FormState) => {
+        const payload = {
+            ...data,
+            imgUrl: uploadedImgUrl || productImgUrl
+        }
         makePrivateRequest({
             url: isEditing ? `/products/${productId}` : '/products',
             method: isEditing ? 'PUT' : 'POST',
-            data
+            data: payload
         })
             .then(() => {
                 toast.info('Produto Salvo com sucesso!');
@@ -64,6 +73,10 @@ const Form = () => {
             .catch(() => {
                 toast.error('Error ao salvar produto!')
             })
+    }
+
+    const onUploadSucess = (imgUrl: string) => {
+        setUploadedImgUrl(imgUrl);
     }
 
     return (
@@ -95,7 +108,7 @@ const Form = () => {
                             <Controller
                                 as={Select}
                                 name="categories"
-                                rules={{required: true}}
+                                rules={{ required: true }}
                                 control={control}
                                 options={categories}
                                 isLoading={isLoadingCategories}
@@ -108,7 +121,7 @@ const Form = () => {
                                 data-testid="categories"
                                 defaultValue=""
                             />
-                             {errors.price && (
+                            {errors.price && (
                                 <div className="invalid-feedback d-block">
                                     Campo obrigatório
                                 </div>
@@ -131,19 +144,10 @@ const Form = () => {
                             )}
                         </div>
                         <div className="margin-bottom-30">
-                            <input
-                                ref={register({ required: "Campo obrigatório" })}
-                                name="imgUrl"
-                                type="text"
-                                className="form-control  input-base"
-                                placeholder="imagem do produto"
-                                data-testid="imgUrl"
+                            <ImageUpload
+                                onUploadSucess={onUploadSucess}
+                                productImgUrl={productImgUrl}
                             />
-                            {errors.imgUrl && (
-                                <div className="invalid-feedback d-block">
-                                    {errors.imgUrl.message}
-                                </div>
-                            )}
                         </div>
                     </div>
                     <div className="col-6 mb-5">
